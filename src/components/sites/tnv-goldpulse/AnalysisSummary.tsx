@@ -72,7 +72,7 @@ export function AnalysisSummary() {
           <PulseGauge
             value={gaugeValue}
             bandLabel="PULSE"
-            note={`Pulse ${gaugeValue} | Body:68% | Range:Strong | HTF:${pulse.htf}`}
+            note={`Pulse ${gaugeValue} | RSI: ${pulse.indicators.rsi.toFixed(1)} | HTF:${pulse.htf}`}
             color={gaugeColor}
           />
         </div>
