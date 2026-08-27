@@ -17,7 +17,6 @@ export function SponsorCard() {
   // Ngăn sự kiện click lây lan từ nút Open Account
   const handleAction = (e: React.MouseEvent) => {
     e.stopPropagation();
-    alert("Connecting to Exness...");
   };
 
   // Fetch tin tức từ API proxy ForexFactory
@@ -87,12 +86,15 @@ export function SponsorCard() {
           <p className="text-[0.72rem] text-gray-400 mb-2">
             Ultra-fast execution synchronized with TNV Indicator breakout alerts.
           </p>
-          <button
+          <a
+            href="https://one.exnessonelink.com/a/aml5fdpb?source=app"
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={handleAction}
             className="inline-block px-4 py-1 rounded-full border border-[#f5c542] text-[#f5c542] text-xs font-semibold hover:bg-[#f5c542] hover:text-[#05060a] transition-all cursor-pointer"
           >
             Open Account
-          </button>
+          </a>
         </div>
       )}
 
