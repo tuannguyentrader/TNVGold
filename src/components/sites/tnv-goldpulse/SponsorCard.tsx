@@ -20,22 +20,22 @@ export function SponsorCard() {
     alert("Connecting to Exness...");
   };
 
-  // Fetch tin tức vàng mới nhất từ RSS TradingView
+  // Fetch tin tức từ API proxy ForexFactory
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await fetch(
-          "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.tradingview.com%2Ffeed%2F%3Fsymbol%3DXAUUSD&api_key=dcg3qk9krhwfwnenc83vy3azbeqdxefhstqnjmdn&count=3"
-        );
+        const res = await fetch("/api/news", { cache: "no-store" });
         if (res.ok) {
           const json = await res.json();
-          const items: NewsItem[] = (json.items || []).slice(0, 3).map((a: any) => ({
-            title: a.title || "",
-            source: "TradingView",
-            time: new Date(a.pubDate || a.publishedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-            url: a.link || "#",
-          }));
-          if (items.length > 0) setNews(items);
+          if (json.success && json.items.length > 0) {
+            const items: NewsItem[] = json.items.map((a: any) => ({
+              title: `[${a.currency}] ${a.title}`,
+              source: "ForexFactory",
+              time: a.date || "",
+              url: "#",
+            }));
+            setNews(items);
+          }
         }
       } catch {
         // fallback
