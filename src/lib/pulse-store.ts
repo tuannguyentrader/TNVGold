@@ -1,4 +1,12 @@
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+
+// Khởi tạo Redis từ biến môi trường (tự động dùng local dev nếu không có)
+const redis = process.env.UPSTASH_REDIS_REST_URL
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    })
+  : null;
 
 export interface MultiTfData {
   bias: "LONG" | "SHORT" | "NEUTRAL";
@@ -83,8 +91,8 @@ let localHistoryCache: PulseSnapshot[] | null = null;
 
 export async function getLatestPulse(): Promise<PulseSnapshot> {
   try {
-    if (!process.env.KV_URL) return localCache || defaultSnapshot;
-    const data = await kv.get<PulseSnapshot>(KV_KEY_PULSE);
+    if (!redis) return localCache || defaultSnapshot;
+    const data = await redis.get<PulseSnapshot>(KV_KEY_PULSE);
     if (data) {
       localCache = data;
       return data;
@@ -97,8 +105,8 @@ export async function getLatestPulse(): Promise<PulseSnapshot> {
 
 export async function getPulseHistory(): Promise<PulseSnapshot[]> {
   try {
-    if (!process.env.KV_URL) return localHistoryCache || [];
-    const data = await kv.get<PulseSnapshot[]>(KV_KEY_HISTORY);
+    if (!redis) return localHistoryCache || [];
+    const data = await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY);
     if (data && Array.isArray(data)) {
       localHistoryCache = data;
       return data.slice(0, 10);
@@ -118,16 +126,16 @@ export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
   localCache = snapshot;
 
   try {
-    if (process.env.KV_URL) {
+    if (redis) {
       // Save current pulse
-      await kv.set(KV_KEY_PULSE, snapshot);
+      await redis.set(KV_KEY_PULSE, snapshot);
 
       // Update history
-      const history = (await kv.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];
+      const history = (await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];
       history.unshift(snapshot);
       const trimmed = history.slice(0, 15);
       localHistoryCache = trimmed;
-      await kv.set(KV_KEY_HISTORY, trimmed);
+      await redis.set(KV_KEY_HISTORY, trimmed);
     } else {
       // Local fallback
       if (!localHistoryCache) localHistoryCache = [];
