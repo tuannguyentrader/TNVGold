@@ -135,19 +135,16 @@ export function LiveMetricsGrid() {
             <div className="flex items-center justify-between text-[0.68rem] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
               <span>ENTRY</span>
             </div>
-            <div className="space-y-0.5 my-auto">
+            <div className="space-y-1 my-auto">
               {[
                 { tf: "M15", hi: pulse.multiTf.m15.high, lo: pulse.multiTf.m15.low },
                 { tf: "M30", hi: pulse.multiTf.m30.high, lo: pulse.multiTf.m30.low },
                 { tf: "H1", hi: pulse.multiTf.h1.high, lo: pulse.multiTf.h1.low },
               ].map((row) => (
-                <div key={row.tf} className="flex items-center justify-between text-[0.7rem] py-0.5 border-b border-white/5 last:border-none">
-                  <span className="font-mono text-gray-400 text-[0.68rem] min-w-[28px]">{row.tf}</span>
-                  <span className="font-semibold text-white text-[0.68rem] whitespace-nowrap">
-                    H: ${row.hi.toFixed(2)}
-                  </span>
-                  <span className="font-semibold text-gray-300 text-[0.68rem] whitespace-nowrap">
-                    L: ${row.lo.toFixed(2)}
+                <div key={row.tf} className="flex items-center justify-between text-[0.68rem] py-0.5 border-b border-white/5 last:border-none">
+                  <span className="font-mono text-gray-400 min-w-[28px]">{row.tf}</span>
+                  <span className="font-semibold text-white whitespace-nowrap">
+                    ${row.lo.toFixed(2)} - ${row.hi.toFixed(2)}
                   </span>
                 </div>
               ))}
