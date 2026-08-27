@@ -71,8 +71,8 @@ export function AnalysisSummary() {
         <div className="transform transition-transform hover:scale-105 duration-200">
           <PulseGauge
             value={gaugeValue}
-            bandLabel="SCORE"
-            note={`Score: ${pulse.score}/10 | Body:68% | Range:Strong | HTF:${pulse.htf}`}
+            bandLabel="PULSE"
+            note={`Pulse ${gaugeValue} | Body:68% | Range:Strong | HTF:${pulse.htf}`}
             color={gaugeColor}
           />
         </div>
