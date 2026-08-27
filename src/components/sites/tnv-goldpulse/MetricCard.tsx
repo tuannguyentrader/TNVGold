@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { InfoTip } from "./InfoTip";
 
 interface MetricCardProps {
@@ -24,6 +24,19 @@ export function MetricCard({
 }: MetricCardProps) {
   const [flipped, setFlipped] = useState(false);
   const isFlip = !!flipBack;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto flip back after 10 seconds
+  useEffect(() => {
+    if (flipped) {
+      timerRef.current = setTimeout(() => {
+        setFlipped(false);
+      }, 10000);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [flipped]);
 
   return (
     <div
