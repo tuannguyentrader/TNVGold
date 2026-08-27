@@ -57,7 +57,7 @@ export function LiveMetricsGrid() {
         </div>
       </MetricCard>
 
-      {/* 2. PULSE (%) */}
+      {/* 2. PULSE */}
       <MetricCard
         label="PULSE"
         tooltip={t.scoreTooltip}
@@ -66,16 +66,16 @@ export function LiveMetricsGrid() {
           <FlipBackContent
             label="PULSE"
             rows={[
-              { tf: "M15", value: `${pulse.multiTf.m15.score * 10}%` },
-              { tf: "M30", value: `${pulse.multiTf.m30.score * 10}%` },
-              { tf: "H1", value: `${pulse.multiTf.h1.score * 10}%` },
+              { tf: "M15", value: `${pulse.multiTf.m15.score * 10}` },
+              { tf: "M30", value: `${pulse.multiTf.m30.score * 10}` },
+              { tf: "H1", value: `${pulse.multiTf.h1.score * 10}` },
             ]}
           />
         }
       >
-        <div className="flex items-baseline">
+        <div className="flex items-center justify-center h-full">
           <span
-            className={`text-2xl font-bold font-mono ${
+            className={`text-4xl font-bold font-mono ${
               pulse.score >= 8
                 ? "text-[#61e294]"
                 : pulse.score >= 5
@@ -83,7 +83,7 @@ export function LiveMetricsGrid() {
                 : "text-gray-400"
             }`}
           >
-            {pulse.score * 10}%
+            {pulse.score * 10}
           </span>
         </div>
       </MetricCard>

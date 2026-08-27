@@ -26,7 +26,7 @@ export function HistoryTable() {
 
   const pulseLabel = (score: number) => {
     const p = score * 10;
-    return `${p}%`;
+    return `${p}`;
   };
 
   return (
