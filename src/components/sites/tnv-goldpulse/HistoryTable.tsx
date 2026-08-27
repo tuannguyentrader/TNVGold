@@ -1,12 +1,33 @@
 "use client";
 
-import { History, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { useState, useMemo } from "react";
+import { History, TrendingUp, TrendingDown, Clock, Filter } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
 
 export function HistoryTable() {
   const { t } = useLanguage();
   const { history } = useLivePulse();
+  const [filterBias, setFilterBias] = useState<string>("ALL");
+
+  // Lọc dữ liệu
+  const filtered = useMemo(() => {
+    if (filterBias === "ALL") return history;
+    return history.filter((r) => r.bias === filterBias);
+  }, [history, filterBias]);
+
+  // Format ngày từ time string
+  const formatTime = (time: string) => {
+    if (!time || time === "—") return time;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
+    return `${dateStr} ${time}`;
+  };
+
+  const pulseLabel = (score: number) => {
+    const p = score * 10;
+    return `${p}%`;
+  };
 
   return (
     <section className="qx-history my-5" aria-label={t.historyTitle}>
@@ -20,9 +41,28 @@ export function HistoryTable() {
             {t.historySub}
           </p>
         </div>
-        <div className="flex items-center gap-1.5 text-[0.7rem] text-[#f5c542] font-mono">
-          <Clock className="w-3 h-3" />
-          <span>{history.length} snapshots</span>
+        <div className="flex items-center gap-2">
+          {/* Bộ lọc */}
+          <div className="flex items-center gap-1 bg-[#111622] p-0.5 rounded-lg border border-white/5">
+            <Filter className="w-3 h-3 text-gray-400 ml-1.5" />
+            {(["ALL", "LONG", "SHORT", "NEUTRAL"] as const).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setFilterBias(opt)}
+                className={`text-[0.65rem] px-2 py-0.5 rounded font-medium transition-all cursor-pointer ${
+                  filterBias === opt
+                    ? "bg-[rgba(245,197,66,0.2)] text-[#f5c542] font-bold"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {opt === "ALL" ? "ALL" : opt}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5 text-[0.7rem] text-[#f5c542] font-mono">
+            <Clock className="w-3 h-3" />
+            <span>{filtered.length} snapshots</span>
+          </div>
         </div>
       </div>
 
@@ -33,7 +73,7 @@ export function HistoryTable() {
               <th className="py-2.5 px-3.5">{t.colTime}</th>
               <th className="py-2.5 px-3.5">{t.colPrice}</th>
               <th className="py-2.5 px-3.5">{t.colSignal}</th>
-              <th className="py-2.5 px-3.5">{t.colScore}</th>
+              <th className="py-2.5 px-3.5">PULSE</th>
               <th className="py-2.5 px-3.5">{t.colVolatility}</th>
               <th className="py-2.5 px-3.5">{t.colHigh}</th>
               <th className="py-2.5 px-3.5">{t.colLow}</th>
@@ -41,13 +81,13 @@ export function HistoryTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 font-mono text-[0.74rem]">
-            {history.map((row, idx) => (
+            {filtered.map((row, idx) => (
               <tr
                 key={idx}
                 className="hover:bg-white/[0.04] transition-colors"
               >
-                <td className="py-2.5 px-3.5 text-gray-300 font-medium">
-                  {row.time}
+                <td className="py-2.5 px-3.5 text-gray-300 font-medium whitespace-nowrap">
+                  {formatTime(row.time)}
                 </td>
                 <td className="py-2.5 px-3.5 text-white font-bold">
                   ${row.price.toFixed(2)}
@@ -81,7 +121,7 @@ export function HistoryTable() {
                         : "text-gray-400"
                     }`}
                   >
-                    {row.score} / 10
+                    {pulseLabel(row.score)}
                   </span>
                 </td>
                 <td className="py-2.5 px-3.5 text-gray-300">

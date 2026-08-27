@@ -57,18 +57,18 @@ export function LiveMetricsGrid() {
         </div>
       </MetricCard>
 
-      {/* 2. QUALITY SCORE */}
+      {/* 2. PULSE (%) */}
       <MetricCard
-        label={t.scoreLabel}
+        label="PULSE"
         tooltip={t.scoreTooltip}
         footer={<ConfidenceBar value={pulse.score * 10} />}
         flipBack={
           <FlipBackContent
-            label={t.scoreLabel}
+            label="PULSE"
             rows={[
-              { tf: "M15", value: `${pulse.multiTf.m15.score} / 10` },
-              { tf: "M30", value: `${pulse.multiTf.m30.score} / 10` },
-              { tf: "H1", value: `${pulse.multiTf.h1.score} / 10` },
+              { tf: "M15", value: `${pulse.multiTf.m15.score * 10}%` },
+              { tf: "M30", value: `${pulse.multiTf.m30.score * 10}%` },
+              { tf: "H1", value: `${pulse.multiTf.h1.score * 10}%` },
             ]}
           />
         }
@@ -83,7 +83,7 @@ export function LiveMetricsGrid() {
                 : "text-gray-400"
             }`}
           >
-            {pulse.score} / 10
+            {pulse.score * 10}%
           </span>
         </div>
       </MetricCard>
@@ -131,14 +131,28 @@ export function LiveMetricsGrid() {
           </div>
         }
         flipBack={
-          <FlipBackContent
-            label="ENTRY"
-            rows={[
-              { tf: "M15", value: `$${pulse.multiTf.m15.high.toFixed(2)}` },
-              { tf: "M30", value: `$${pulse.multiTf.m30.high.toFixed(2)}` },
-              { tf: "H1", value: `$${pulse.multiTf.h1.high.toFixed(2)}` },
-            ]}
-          />
+          <div className="flex flex-col justify-between h-full w-full">
+            <div className="flex items-center justify-between text-[0.68rem] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+              <span>ENTRY</span>
+            </div>
+            <div className="space-y-0.5 my-auto">
+              {[
+                { tf: "M15", hi: pulse.multiTf.m15.high, lo: pulse.multiTf.m15.low },
+                { tf: "M30", hi: pulse.multiTf.m30.high, lo: pulse.multiTf.m30.low },
+                { tf: "H1", hi: pulse.multiTf.h1.high, lo: pulse.multiTf.h1.low },
+              ].map((row) => (
+                <div key={row.tf} className="flex items-center justify-between text-[0.7rem] py-0.5 border-b border-white/5 last:border-none">
+                  <span className="font-mono text-gray-400 text-[0.68rem]">{row.tf}</span>
+                  <span className="font-semibold text-white text-[0.72rem]">
+                    H: ${row.hi.toFixed(2)} &nbsp; L: ${row.lo.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="text-[0.6rem] text-gray-500 hover:text-[#f5c542] text-right font-mono transition-colors">
+              Tap ↩
+            </div>
+          </div>
         }
       >
         <div className="flex items-center">
