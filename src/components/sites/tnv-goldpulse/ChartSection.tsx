@@ -32,7 +32,6 @@ export function ChartSection() {
         {/* Footer Notes */}
         <div className="flex items-center justify-between text-[0.68rem] text-gray-500 mt-2 flex-wrap">
           <span>{t.flowFooter}</span>
-          <span className="text-[#f5c542]">{t.flowSynced}</span>
         </div>
       </div>
     </section>
