@@ -11,7 +11,7 @@ export function InfoTip({ text }: InfoTipProps) {
   const [isOpen, setIsOpen] = useState(false);
   const tipRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
+  // Close on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (tipRef.current && !tipRef.current.contains(e.target as Node)) {
@@ -36,7 +36,6 @@ export function InfoTip({ text }: InfoTipProps) {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        onMouseEnter={() => setIsOpen(true)}
         className="w-4 h-4 rounded-full border border-[rgba(245,197,66,0.35)] bg-black/40 hover:bg-[rgba(245,197,66,0.15)] hover:border-[#f5c542] text-[#f5c542] text-[0.62rem] font-serif font-bold italic flex items-center justify-center transition-all cursor-pointer shadow-sm"
         title="Information"
         aria-label="Information"
@@ -46,7 +45,7 @@ export function InfoTip({ text }: InfoTipProps) {
 
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-1.5 w-[220px] sm:w-[240px] p-2.5 rounded-xl border border-[rgba(245,197,66,0.4)] bg-[#111622] text-[#fdfdfd] shadow-2xl text-[0.72rem] leading-relaxed z-50 animate-in fade-in zoom-in-95 duration-150 select-text"
+          className="absolute right-0 top-full mt-1.5 w-[280px] p-2.5 rounded-xl border border-[rgba(245,197,66,0.4)] bg-[#111622] text-[#fdfdfd] shadow-2xl text-[0.72rem] leading-relaxed z-50 animate-in fade-in zoom-in-95 duration-150 select-text break-words"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-1.5 mb-1 pb-1 border-b border-white/10">

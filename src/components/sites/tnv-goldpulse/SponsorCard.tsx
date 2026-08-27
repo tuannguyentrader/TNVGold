@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface NewsItem {
   title: string;
@@ -13,6 +13,15 @@ export function SponsorCard() {
   const [flipped, setFlipped] = useState(false);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto flip back after 10 seconds
+  useEffect(() => {
+    if (flipped) {
+      timerRef.current = setTimeout(() => setFlipped(false), 10000);
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [flipped]);
 
   // Ngăn sự kiện click lây lan từ nút Open Account
   const handleAction = (e: React.MouseEvent) => {

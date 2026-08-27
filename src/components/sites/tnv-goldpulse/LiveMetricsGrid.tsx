@@ -142,9 +142,12 @@ export function LiveMetricsGrid() {
                 { tf: "H1", hi: pulse.multiTf.h1.high, lo: pulse.multiTf.h1.low },
               ].map((row) => (
                 <div key={row.tf} className="flex items-center justify-between text-[0.7rem] py-0.5 border-b border-white/5 last:border-none">
-                  <span className="font-mono text-gray-400 text-[0.68rem]">{row.tf}</span>
-                  <span className="font-semibold text-white text-[0.72rem]">
-                    H: ${row.hi.toFixed(2)} &nbsp; L: ${row.lo.toFixed(2)}
+                  <span className="font-mono text-gray-400 text-[0.68rem] min-w-[28px]">{row.tf}</span>
+                  <span className="font-semibold text-white text-[0.68rem] whitespace-nowrap">
+                    H: ${row.hi.toFixed(2)}
+                  </span>
+                  <span className="font-semibold text-gray-300 text-[0.68rem] whitespace-nowrap">
+                    L: ${row.lo.toFixed(2)}
                   </span>
                 </div>
               ))}
