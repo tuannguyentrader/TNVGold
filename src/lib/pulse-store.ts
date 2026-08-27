@@ -1,3 +1,6 @@
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
+
 export interface MultiTfData {
   bias: "LONG" | "SHORT" | "NEUTRAL";
   score: number;
@@ -43,7 +46,7 @@ export interface PulseSnapshot {
 }
 
 // Initial default state matching current calibrated data
-let currentSnapshot: PulseSnapshot = {
+const defaultSnapshot: PulseSnapshot = {
   symbol: "XAUUSD",
   time: new Date().toLocaleTimeString("en-GB", { hour12: false }),
   price: 2898.50,
@@ -72,7 +75,68 @@ let currentSnapshot: PulseSnapshot = {
   },
 };
 
-let historySnapshots: PulseSnapshot[] = [currentSnapshot];
+// File path for persistence (works on Vercel /tmp)
+const DATA_DIR = process.env.VERCEL ? "/tmp/tnv" : join(process.cwd(), ".tnv-data");
+const PULSE_FILE = join(DATA_DIR, "pulse.json");
+const HISTORY_FILE = join(DATA_DIR, "history.json");
+
+function ensureDir() {
+  if (!existsSync(DATA_DIR)) {
+    try {
+      mkdirSync(DATA_DIR, { recursive: true });
+    } catch {
+      // ignore
+    }
+  }
+}
+
+function readPulseFromDisk(): PulseSnapshot | null {
+  try {
+    ensureDir();
+    if (existsSync(PULSE_FILE)) {
+      const raw = readFileSync(PULSE_FILE, "utf-8");
+      return JSON.parse(raw) as PulseSnapshot;
+    }
+  } catch {
+    // fallback
+  }
+  return null;
+}
+
+function readHistoryFromDisk(): PulseSnapshot[] | null {
+  try {
+    ensureDir();
+    if (existsSync(HISTORY_FILE)) {
+      const raw = readFileSync(HISTORY_FILE, "utf-8");
+      return JSON.parse(raw) as PulseSnapshot[];
+    }
+  } catch {
+    // fallback
+  }
+  return null;
+}
+
+function writePulseToDisk(snapshot: PulseSnapshot) {
+  try {
+    ensureDir();
+    writeFileSync(PULSE_FILE, JSON.stringify(snapshot));
+  } catch {
+    // ignore
+  }
+}
+
+function writeHistoryToDisk(history: PulseSnapshot[]) {
+  try {
+    ensureDir();
+    writeFileSync(HISTORY_FILE, JSON.stringify(history));
+  } catch {
+    // ignore
+  }
+}
+
+// In-memory cache with disk fallback
+let currentSnapshot: PulseSnapshot = readPulseFromDisk() || defaultSnapshot;
+let historySnapshots: PulseSnapshot[] = readHistoryFromDisk() || [currentSnapshot];
 
 export function getLatestPulse(): PulseSnapshot {
   return currentSnapshot;
@@ -88,9 +152,13 @@ export function updatePulse(newSnapshot: PulseSnapshot): void {
     time: newSnapshot.time || new Date().toLocaleTimeString("en-GB", { hour12: false }),
   };
 
+  // Write to disk for cross-instance persistence on Vercel
+  writePulseToDisk(currentSnapshot);
+
   // Add to history (limit 15 records)
   historySnapshots.unshift(currentSnapshot);
   if (historySnapshots.length > 15) {
     historySnapshots = historySnapshots.slice(0, 15);
   }
+  writeHistoryToDisk(historySnapshots);
 }

@@ -28,10 +28,10 @@ export function SponsorCard() {
           const json = await res.json();
           if (json.success && json.items.length > 0) {
             const items: NewsItem[] = json.items.map((a: any) => ({
-              title: `[${a.currency}] ${a.title}`,
-              source: "ForexFactory",
-              time: a.date || "",
-              url: "#",
+              title: a.title || "",
+              source: a.source || "ForexFactory",
+              time: a.time || "",
+              url: a.url || "#",
             }));
             setNews(items);
           }
