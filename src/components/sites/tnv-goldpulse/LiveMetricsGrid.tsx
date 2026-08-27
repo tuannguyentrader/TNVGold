@@ -15,6 +15,18 @@ export function LiveMetricsGrid() {
   const isShort = pulse.bias === "SHORT";
   const isNeutral = pulse.bias === "NEUTRAL";
 
+  // Map HTF label: Pass/NEUTRAL -> Neutral, Bullish/Bearish giữ nguyên
+  const htfLabel = (v: string) => {
+    if (v === "LONG" || v === "Bullish") return "Bullish";
+    if (v === "SHORT" || v === "Bearish") return "Bearish";
+    return "Neutral";
+  };
+  const htfType = (v: string): "up" | "down" | "neutral" => {
+    if (v === "LONG" || v === "Bullish") return "up";
+    if (v === "SHORT" || v === "Bearish") return "down";
+    return "neutral";
+  };
+
   return (
     <div className="grid grid-cols-2 grid-rows-[148px_148px_148px] gap-2.5 w-full h-full">
       {/* 1. BIAS */}
@@ -209,9 +221,9 @@ export function LiveMetricsGrid() {
           <FlipBackContent
             label={t.htfLabel}
             rows={[
-              { tf: "M15", value: pulse.multiTf.m15.htf, badge: "Pass", badgeType: "up" },
-              { tf: "M30", value: pulse.multiTf.m30.htf, badge: "Pass", badgeType: "up" },
-              { tf: "H1", value: pulse.multiTf.h1.htf, badge: "Pass", badgeType: "up" },
+              { tf: "M15", value: htfLabel(pulse.multiTf.m15.htf), badge: htfLabel(pulse.multiTf.m15.htf), badgeType: htfType(pulse.multiTf.m15.htf) },
+              { tf: "M30", value: htfLabel(pulse.multiTf.m30.htf), badge: htfLabel(pulse.multiTf.m30.htf), badgeType: htfType(pulse.multiTf.m30.htf) },
+              { tf: "H1", value: htfLabel(pulse.multiTf.h1.htf), badge: htfLabel(pulse.multiTf.h1.htf), badgeType: htfType(pulse.multiTf.h1.htf) },
             ]}
           />
         }
