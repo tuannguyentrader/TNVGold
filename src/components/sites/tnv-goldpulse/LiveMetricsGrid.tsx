@@ -13,6 +13,7 @@ export function LiveMetricsGrid() {
 
   const isLong = pulse.bias === "LONG";
   const isShort = pulse.bias === "SHORT";
+  const isNeutral = pulse.bias === "NEUTRAL";
 
   return (
     <div className="grid grid-cols-2 grid-rows-[148px_148px_148px] gap-2.5 w-full h-full">
@@ -42,7 +43,7 @@ export function LiveMetricsGrid() {
               ? "text-[#61e294]"
               : isShort
               ? "text-[#ff8383]"
-              : "text-gray-400"
+              : "text-[#f5c542]"
           }`}
         >
           {isLong ? (
@@ -52,7 +53,7 @@ export function LiveMetricsGrid() {
           ) : (
             <Minus className="w-5 h-5" />
           )}
-          <span>{pulse.bias}</span>
+          <span>{isNeutral ? "NEUTRAL" : pulse.bias}</span>
         </div>
       </MetricCard>
 
@@ -141,13 +142,17 @@ export function LiveMetricsGrid() {
         }
       >
         <div className="flex items-center">
-          <span
-            className={`text-2xl font-bold font-mono tracking-tight ${
-              pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
-            }`}
-          >
-            {pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}` : pulse.entry.gain.toFixed(2)}
-          </span>
+          {isNeutral ? (
+            <span className="text-lg font-semibold text-gray-400">Neutral</span>
+          ) : (
+            <span
+              className={`text-2xl font-bold font-mono tracking-tight ${
+                pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
+              }`}
+            >
+              {pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}` : pulse.entry.gain.toFixed(2)}
+            </span>
+          )}
         </div>
       </MetricCard>
 

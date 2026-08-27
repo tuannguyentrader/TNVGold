@@ -75,6 +75,7 @@ export async function POST(request: Request) {
         vwap: payload.indicators?.vwap || current.indicators.vwap,
         spread: payload.indicators?.spread || current.indicators.spread,
       },
+      analysisText: payload.analysisText || current.analysisText,
     };
 
     updatePulse(mergedSnapshot);

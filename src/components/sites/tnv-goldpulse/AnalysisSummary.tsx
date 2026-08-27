@@ -5,7 +5,7 @@ import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
 
 export function AnalysisSummary() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { pulse } = useLivePulse();
 
   const scrollToTechnical = () => {
@@ -19,6 +19,9 @@ export function AnalysisSummary() {
 
   const pulseScore = pulse.score * 10;
   const pulseColor = pulseScore >= 60 ? "#61e294" : pulseScore >= 40 ? "#f5c542" : "#ff8383";
+
+  // Use live analysis text if available, fallback to static translation
+  const analysisText = pulse.analysisText?.[language] || t.analysisText;
 
   return (
     <aside className="flex flex-col justify-between h-full p-3.5 bg-[#080c14] rounded-xl border border-white/5 shadow-inner">
@@ -50,7 +53,7 @@ export function AnalysisSummary() {
 
         {/* Narrative Description */}
         <p className="text-[0.74rem] text-gray-200 leading-snug font-normal max-w-[98%] text-center m-0">
-          {t.analysisText}
+          {analysisText}
         </p>
 
         {/* Link to Technical Grid */}

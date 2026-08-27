@@ -65,9 +65,9 @@ export function HistoryTable() {
                       SHORT
                     </span>
                   )}
-                  {row.bias === "IN-CHANNEL" && (
+                  {row.bias === "NEUTRAL" && (
                     <span className="inline-flex items-center gap-1 text-[0.68rem] font-medium text-gray-400">
-                      IN-CHANNEL
+                      NEUTRAL
                     </span>
                   )}
                 </td>

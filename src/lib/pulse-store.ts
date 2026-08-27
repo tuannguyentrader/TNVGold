@@ -1,5 +1,5 @@
 export interface MultiTfData {
-  bias: "LONG" | "SHORT" | "IN-CHANNEL";
+  bias: "LONG" | "SHORT" | "NEUTRAL";
   score: number;
   high: number;
   low: number;
@@ -20,7 +20,7 @@ export interface PulseSnapshot {
   symbol: string;
   time: string;
   price: number;
-  bias: "LONG" | "SHORT" | "IN-CHANNEL";
+  bias: "LONG" | "SHORT" | "NEUTRAL";
   score: number;
   volatility: number;
   entry: {

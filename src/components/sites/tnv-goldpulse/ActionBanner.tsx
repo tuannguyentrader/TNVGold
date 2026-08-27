@@ -10,11 +10,24 @@ export function ActionBanner() {
   const { pulse } = useLivePulse();
   const [copied, setCopied] = useState(false);
 
+  const isLong = pulse.bias === "LONG";
+  const isShort = pulse.bias === "SHORT";
+  const isNeutral = pulse.bias === "NEUTRAL";
+
   const gainStr = pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}` : pulse.entry.gain.toFixed(2);
-  const actionText =
-    language === "vi"
-      ? `XAUUSD ${pulse.bias} • Giá vào: $${pulse.entry.high.toFixed(2)} • Hiện tại: $${pulse.price.toFixed(2)} (${gainStr}) • Dừng lỗ: $${pulse.exit.toFixed(2)}`
-      : `XAUUSD ${pulse.bias} • Entry: $${pulse.entry.high.toFixed(2)} • Now: $${pulse.price.toFixed(2)} (${gainStr}) • Stop: $${pulse.exit.toFixed(2)}`;
+
+  let actionText: string;
+  if (isNeutral) {
+    actionText =
+      language === "vi"
+        ? `XAUUSD TRUNG LẬP • Giá: $${pulse.price.toFixed(2)} • Biên độ: ${pulse.entry.low.toFixed(2)}–${pulse.entry.high.toFixed(2)}`
+        : `XAUUSD NEUTRAL • Price: $${pulse.price.toFixed(2)} • Range: ${pulse.entry.low.toFixed(2)}–${pulse.entry.high.toFixed(2)}`;
+  } else {
+    actionText =
+      language === "vi"
+        ? `XAUUSD ${pulse.bias} • Giá vào: $${pulse.entry.high.toFixed(2)} • Hiện tại: $${pulse.price.toFixed(2)} (${gainStr}) • Dừng lỗ: $${pulse.exit.toFixed(2)}`
+        : `XAUUSD ${pulse.bias} • Entry: $${pulse.entry.high.toFixed(2)} • Now: $${pulse.price.toFixed(2)} (${gainStr}) • Stop: $${pulse.exit.toFixed(2)}`;
+  }
 
   const handleShare = async () => {
     const shareText = `TNV SIGNAL | ${actionText}`;
@@ -29,9 +42,6 @@ export function ActionBanner() {
     }
   };
 
-  const isLong = pulse.bias === "LONG";
-  const isShort = pulse.bias === "SHORT";
-
   return (
     <div
       className={`flex items-center justify-between gap-3 px-4 py-2.5 mb-4 rounded-xl border text-xs shadow-md ${
@@ -39,7 +49,7 @@ export function ActionBanner() {
           ? "border-[rgba(97,226,148,0.35)] bg-[#070e12]"
           : isShort
           ? "border-[rgba(255,96,96,0.35)] bg-[#130707]"
-          : "border-white/10 bg-[#0b0f16]"
+          : "border-[rgba(245,197,66,0.25)] bg-[#0b0f16]"
       }`}
     >
       {/* Left: Signal Badge + Alert message */}
@@ -50,11 +60,11 @@ export function ActionBanner() {
               ? "bg-[rgba(97,226,148,0.18)] text-[#61e294] border-[rgba(97,226,148,0.3)]"
               : isShort
               ? "bg-[rgba(255,96,96,0.18)] text-[#ff8383] border-[rgba(255,96,96,0.3)]"
-              : "bg-white/10 text-gray-300 border-white/10"
+              : "bg-[rgba(245,197,66,0.12)] text-[#f5c542] border-[rgba(245,197,66,0.25)]"
           }`}
         >
           <Zap className="w-3 h-3 fill-current" />
-          TNV SIGNAL
+          {isNeutral ? "TNV NEUTRAL" : "TNV SIGNAL"}
         </span>
         <div className="truncate text-gray-200 font-medium font-mono text-[0.74rem]">
           {actionText}
