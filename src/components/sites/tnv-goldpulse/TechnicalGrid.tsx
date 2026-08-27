@@ -36,7 +36,7 @@ export function TechnicalGrid() {
   return (
     <section
       id="technical-grid"
-      className="qx-tech-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 my-4"
+      className="qx-tech-grid my-4"
       aria-label={t.techTitle}
     >
       {/* 1. RSI (14) */}

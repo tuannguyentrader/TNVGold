@@ -551,9 +551,21 @@
 /* --- Technical Grid (6 columns) --- */
 .qx-tech-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .qx-tech-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .qx-tech-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 
 .qx-tech-card {
