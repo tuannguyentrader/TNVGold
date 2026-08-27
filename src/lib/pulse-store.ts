@@ -59,33 +59,33 @@ export interface PulseSnapshot {
 const KV_KEY_PULSE = "tnv:current_pulse";
 const KV_KEY_HISTORY = "tnv:pulse_history";
 
-// Initial default state
+// Initial neutral state (no demo data)
 const defaultSnapshot: PulseSnapshot = {
   symbol: "XAUUSD",
-  time: new Date().toLocaleTimeString("en-GB", { hour12: false }),
-  price: 2898.50,
-  bias: "LONG",
-  score: 8,
-  volatility: 4.20,
+  time: "—",
+  price: 0,
+  bias: "NEUTRAL",
+  score: 0,
+  volatility: 0,
   entry: {
-    high: 2896.40,
-    low: 2884.20,
-    gain: 2.10,
+    high: 0,
+    low: 0,
+    gain: 0,
   },
-  exit: 2891.20,
-  htf: "Not Against",
+  exit: 0,
+  htf: "—",
   multiTf: {
-    m15: { bias: "LONG", score: 8, high: 2894.00, low: 2872.00, exit: 2886.50, htf: "Bullish" },
-    m30: { bias: "LONG", score: 7, high: 2890.50, low: 2865.00, exit: 2880.00, htf: "Bullish" },
-    h1:  { bias: "LONG", score: 9, high: 2888.00, low: 2850.00, exit: 2872.00, htf: "Pass" },
+    m15: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—" },
+    m30: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—" },
+    h1:  { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—" },
   },
   indicators: {
-    rsi: 64.2,
-    atr: 12.80,
-    emaGap: 4.50,
-    adx: 32.4,
-    vwap: 6.20,
-    spread: 1.2,
+    rsi: 0,
+    atr: 0,
+    emaGap: 0,
+    adx: 0,
+    vwap: 0,
+    spread: 0,
   },
 };
 
