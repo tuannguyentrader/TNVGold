@@ -27,8 +27,22 @@ export function FlipBackContent({ label, rows }: FlipBackContentProps) {
           >
             <span className="font-mono text-gray-400 text-[0.68rem]">{row.tf}</span>
             <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-white text-[0.72rem]">{row.value}</span>
-              {row.badge && (
+              {/* Nếu badge trùng value: chỉ hiển thị value có màu */}
+              <span
+                className={`font-semibold text-[0.72rem] ${
+                  row.badge && row.badge === row.value
+                    ? row.badgeType === "up"
+                      ? "text-[#61e294]"
+                      : row.badgeType === "down"
+                      ? "text-[#ff8383]"
+                      : "text-white"
+                    : "text-white"
+                }`}
+              >
+                {row.value}
+              </span>
+              {/* Chỉ hiển thị badge khi khác value */}
+              {row.badge && row.badge !== row.value && (
                 <span
                   className={`text-[0.58rem] px-1.5 py-0.2 rounded font-bold uppercase ${
                     row.badgeType === "up"
