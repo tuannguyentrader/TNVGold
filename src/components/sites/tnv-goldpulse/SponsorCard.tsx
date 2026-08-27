@@ -35,7 +35,7 @@ export function SponsorCard() {
         <div>
           <div className="mb-1.5">
             <span className="inline-block px-2 py-0.5 rounded-full bg-[rgba(245,197,66,0.12)] text-[#f5c542] border border-[rgba(245,197,66,0.25)] text-[0.65rem] font-bold">
-              TNV Partner
+              Exness
             </span>
           </div>
           <h3 className="text-xs font-bold text-white mb-0.5">
@@ -48,7 +48,7 @@ export function SponsorCard() {
             href="#open-account"
             onClick={(e) => {
               e.preventDefault();
-              alert("Connecting to Tier-1 Liquidity Provider...");
+              alert("Connecting to Exness...");
             }}
             className="inline-block px-4 py-1 rounded-full border border-[#f5c542] text-[#f5c542] text-xs font-semibold hover:bg-[#f5c542] hover:text-[#05060a] transition-all cursor-pointer"
           >
@@ -72,8 +72,8 @@ export function SponsorCard() {
           className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
             activeTab === "sponsor" ? "bg-[#f5c542]" : "bg-gray-600"
           }`}
-          title="Show Partner Broker"
-          aria-label="Show Partner Broker"
+          title="Show Exness Broker"
+          aria-label="Show Exness Broker"
         />
       </div>
     </div>
