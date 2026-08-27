@@ -24,27 +24,49 @@ export function AnalysisSummary() {
   const genAnalysis = (): string => {
     if (pulse.analysisText?.[language]) return pulse.analysisText[language]!;
 
-    // Dynamic fallback
-    const biasLabel = pulse.bias === "NEUTRAL" ? (language === "vi" ? "TRUNG LẬP" : "NEUTRAL") : pulse.bias;
-    const gainText = pulse.bias === "NEUTRAL" ? "" : pulse.entry.gain >= 0
+    const pulseVal = gaugeValue;
+    const gainText = pulse.entry.gain >= 0
       ? `+$${pulse.entry.gain.toFixed(2)}`
       : `-$${Math.abs(pulse.entry.gain).toFixed(2)}`;
-    const direction =
-      pulse.bias === "LONG" ? (language === "vi" ? "tăng" : "bullish") :
-      pulse.bias === "SHORT" ? (language === "vi" ? "giảm" : "bearish") :
-      (language === "vi" ? "đi ngang" : "sideways");
 
-    if (language === "vi") {
-      if (pulse.bias === "NEUTRAL") {
-        return `Vàng đang ở trạng thái đi ngang với điểm Score ${pulse.score}/10. Giá hiện tại $${pulse.price.toFixed(2)} trong biên độ $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. Không có tín hiệu breakout rõ ràng. Chờ đợt phá vỡ biên độ để xác nhận xu hướng.`;
-      }
-      return `Vàng đang thể hiện đà ${direction} với Score ${pulse.score}/10. Giá $${pulse.price.toFixed(2)} ${gainText} so với mức vào lệnh. Khung H1/M30 cho thấy cấu trúc ${direction} đồng thuận. Theo dõi: tiếp diễn vượt $${pulse.entry.high.toFixed(2)} hoặc điều chỉnh về $${pulse.exit.toFixed(2)}.`;
-    }
-
+    // NEUTRAL case
     if (pulse.bias === "NEUTRAL") {
-      return `Gold is moving sideways with Score ${pulse.score}/10. Price at $${pulse.price.toFixed(2)} within a range of $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. No clear breakout signal. Wait for a range breakout to confirm direction.`;
+      if (language === "vi") {
+        return `Vàng đang giao dịch đi ngang với xung lực Pulse đạt ${pulseVal}, giá ổn định trong biên độ $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. Cấu trúc đa khung thời gian chưa có sự đồng thuận rõ ràng. Theo dõi: phá vỡ trên $${pulse.entry.high.toFixed(2)} để xác nhận đà tăng, hoặc thủng $${pulse.entry.low.toFixed(2)} để kích hoạt xu hướng giảm.`;
+      }
+      return `Gold is trading sideways with Pulse reaching ${pulseVal}, price holding within a range of $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. Multi-timeframe structure is not providing clear directional alignment. Watch for: a breakout above $${pulse.entry.high.toFixed(2)} to confirm upside momentum, or a breakdown below $${pulse.entry.low.toFixed(2)} to trigger bearish bias.`;
     }
-    return `Gold is showing ${direction} momentum with Score ${pulse.score}/10. Price $${pulse.price.toFixed(2)} is ${gainText} from entry. Higher timeframe structure (H1/M30) provides clean directional alignment. Watch for: continuation above $${pulse.entry.high.toFixed(2)} or a pullback toward $${pulse.exit.toFixed(2)} support.`;
+
+    const direction = pulse.bias === "LONG"
+      ? (language === "vi" ? "tăng" : "bullish")
+      : (language === "vi" ? "giảm" : "bearish");
+
+    const dirAdj = pulse.bias === "LONG"
+      ? (language === "vi" ? "mạnh mẽ" : "strong")
+      : (language === "vi" ? "mạnh mẽ" : "strong");
+
+    const alignment = pulse.bias === "LONG"
+      ? (language === "vi" ? "tăng" : "bullish")
+      : (language === "vi" ? "giảm" : "bearish");
+
+    const resistance = pulse.bias === "LONG"
+      ? pulse.entry.high
+      : pulse.entry.low;
+    const support = pulse.exit;
+
+    // SHORT bias
+    if (pulse.bias === "SHORT") {
+      if (language === "vi") {
+        return `Vàng đang duy trì đà giảm mạnh mẽ với xung lực Pulse đạt ${pulseVal}, giá giảm ${gainText.replace("+", "").replace("-", "")} dưới mức $${resistance.toFixed(2)} cùng cấu trúc đa khung thời gian đồng thuận mà không gặp cản trở. Theo dõi: đà giảm tiếp diễn dưới $${resistance.toFixed(2)} hướng tới các mục tiêu mở rộng, hoặc nhịp hồi kiểm tra lại ngưỡng kháng cự $${support.toFixed(2)} trước khi hình thành nhịp giảm mới.`;
+      }
+      return `Gold is displaying strong ${direction} momentum as Pulse reaches ${pulseVal} and the price sits ${gainText.replace("+", "").replace("-", " -$")} below the $${resistance.toFixed(2)} level, with higher-timeframe structure providing clean directional alignment without overhead resistance. Watch for: continuation below $${resistance.toFixed(2)} toward lower expansion targets, or a pullback toward the $${support.toFixed(2)} resistance to test supply before the next leg lower.`;
+    }
+
+    // LONG bias (default)
+    if (language === "vi") {
+      return `Vàng đang duy trì đà tăng mạnh mẽ với xung lực Pulse đạt ${pulseVal}, giá bứt phá vượt ${gainText} trên mức $${resistance.toFixed(2)} cùng cấu trúc đa khung thời gian đồng thuận mà không gặp cản trở. Theo dõi: đà tăng tiếp diễn vượt $${resistance.toFixed(2)} hướng tới các mục tiêu mở rộng, hoặc nhịp điều chỉnh kiểm tra lại ngưỡng hỗ trợ $${support.toFixed(2)} trước khi hình thành nhịp tăng mới.`;
+    }
+    return `Gold is displaying strong ${direction} momentum as Pulse reaches ${pulseVal} and the price sits ${gainText} above the $${resistance.toFixed(2)} level, with higher-timeframe structure providing clean directional alignment without overhead resistance. Watch for: continuation above $${resistance.toFixed(2)} toward upper expansion targets, or a pullback toward the $${support.toFixed(2)} support to test demand before the next leg higher.`;
   };
 
   const analysisText = genAnalysis();
