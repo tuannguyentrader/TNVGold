@@ -1,11 +1,15 @@
 import { Redis } from "@upstash/redis";
 
-// Khởi tạo Redis từ biến môi trường (tự động dùng local dev nếu không có)
-const redis = process.env.UPSTASH_REDIS_REST_URL
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-    })
+// Hỗ trợ cả Vercel KV env và Upstash Redis env
+const redisUrl =
+  process.env.KV_REST_API_URL ||
+  process.env.UPSTASH_REDIS_REST_URL;
+const redisToken =
+  process.env.KV_REST_API_TOKEN ||
+  process.env.UPSTASH_REDIS_REST_TOKEN;
+
+const redis = redisUrl && redisToken
+  ? new Redis({ url: redisUrl, token: redisToken })
   : null;
 
 export interface MultiTfData {
