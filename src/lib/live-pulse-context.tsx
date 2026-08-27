@@ -46,9 +46,15 @@ const LivePulseContext = createContext<LivePulseContextType>({
   lastUpdated: "Just now",
 });
 
-export function LivePulseProvider({ children }: { children: ReactNode }) {
-  const [pulse, setPulse] = useState<PulseSnapshot>(defaultSnapshot);
-  const [history, setHistory] = useState<PulseSnapshot[]>([defaultSnapshot]);
+interface LivePulseProviderProps {
+  children: ReactNode;
+  initialPulse?: PulseSnapshot;
+  initialHistory?: PulseSnapshot[];
+}
+
+export function LivePulseProvider({ children, initialPulse, initialHistory }: LivePulseProviderProps) {
+  const [pulse, setPulse] = useState<PulseSnapshot>(initialPulse || defaultSnapshot);
+  const [history, setHistory] = useState<PulseSnapshot[]>(initialHistory || [initialPulse || defaultSnapshot]);
   const [isLiveConnected, setIsLiveConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("Just now");
 

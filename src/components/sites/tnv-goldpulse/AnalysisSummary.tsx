@@ -17,11 +17,37 @@ export function AnalysisSummary() {
     }
   };
 
-  const pulseScore = pulse.score * 10;
-  const pulseColor = pulseScore >= 60 ? "#61e294" : pulseScore >= 40 ? "#f5c542" : "#ff8383";
+  const gaugeValue = pulse.score * 10; // 0-100 for gauge
+  const gaugeColor = gaugeValue >= 60 ? "#61e294" : gaugeValue >= 40 ? "#f5c542" : "#ff8383";
 
-  // Use live analysis text if available, fallback to static translation
-  const analysisText = pulse.analysisText?.[language] || t.analysisText;
+  // Generate live analysis text dynamically based on pulse data
+  const genAnalysis = (): string => {
+    if (pulse.analysisText?.[language]) return pulse.analysisText[language]!;
+
+    // Dynamic fallback
+    const biasLabel = pulse.bias === "NEUTRAL" ? (language === "vi" ? "TRUNG LẬP" : "NEUTRAL") : pulse.bias;
+    const gainText = pulse.bias === "NEUTRAL" ? "" : pulse.entry.gain >= 0
+      ? `+$${pulse.entry.gain.toFixed(2)}`
+      : `-$${Math.abs(pulse.entry.gain).toFixed(2)}`;
+    const direction =
+      pulse.bias === "LONG" ? (language === "vi" ? "tăng" : "bullish") :
+      pulse.bias === "SHORT" ? (language === "vi" ? "giảm" : "bearish") :
+      (language === "vi" ? "đi ngang" : "sideways");
+
+    if (language === "vi") {
+      if (pulse.bias === "NEUTRAL") {
+        return `Vàng đang ở trạng thái đi ngang với điểm Score ${pulse.score}/10. Giá hiện tại $${pulse.price.toFixed(2)} trong biên độ $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. Không có tín hiệu breakout rõ ràng. Chờ đợt phá vỡ biên độ để xác nhận xu hướng.`;
+      }
+      return `Vàng đang thể hiện đà ${direction} với Score ${pulse.score}/10. Giá $${pulse.price.toFixed(2)} ${gainText} so với mức vào lệnh. Khung H1/M30 cho thấy cấu trúc ${direction} đồng thuận. Theo dõi: tiếp diễn vượt $${pulse.entry.high.toFixed(2)} hoặc điều chỉnh về $${pulse.exit.toFixed(2)}.`;
+    }
+
+    if (pulse.bias === "NEUTRAL") {
+      return `Gold is moving sideways with Score ${pulse.score}/10. Price at $${pulse.price.toFixed(2)} within a range of $${pulse.entry.low.toFixed(2)} – $${pulse.entry.high.toFixed(2)}. No clear breakout signal. Wait for a range breakout to confirm direction.`;
+    }
+    return `Gold is showing ${direction} momentum with Score ${pulse.score}/10. Price $${pulse.price.toFixed(2)} is ${gainText} from entry. Higher timeframe structure (H1/M30) provides clean directional alignment. Watch for: continuation above $${pulse.entry.high.toFixed(2)} or a pullback toward $${pulse.exit.toFixed(2)} support.`;
+  };
+
+  const analysisText = genAnalysis();
 
   return (
     <aside className="flex flex-col justify-between h-full p-3.5 bg-[#080c14] rounded-xl border border-white/5 shadow-inner">
@@ -44,10 +70,10 @@ export function AnalysisSummary() {
         {/* Radial Score Gauge (Scaled 104px) */}
         <div className="transform transition-transform hover:scale-105 duration-200">
           <PulseGauge
-            value={pulseScore}
-            bandLabel="PULSE"
-            note={`Pulse:${pulseScore} | Body:68% | Range:Strong | HTF:${pulse.htf}`}
-            color={pulseColor}
+            value={gaugeValue}
+            bandLabel="SCORE"
+            note={`Score: ${pulse.score}/10 | Body:68% | Range:Strong | HTF:${pulse.htf}`}
+            color={gaugeColor}
           />
         </div>
 

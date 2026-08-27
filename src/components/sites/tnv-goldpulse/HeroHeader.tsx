@@ -7,10 +7,10 @@ import { useLanguage } from "@/lib/language-context";
 
 function getActiveSession(): string {
   const utcHour = new Date().getUTCHours();
-  if (utcHour >= 8 && utcHour < 13) return "London Session";
+  if (utcHour >= 8 && utcHour < 13) return "London";
   if (utcHour >= 13 && utcHour < 17) return "London & NY Overlap";
-  if (utcHour >= 17 && utcHour < 22) return "New York Session";
-  if (utcHour >= 22 || utcHour < 7) return "Tokyo Session";
+  if (utcHour >= 17 && utcHour < 22) return "New York";
+  if (utcHour >= 22 || utcHour < 7) return "Tokyo";
   return "London Pre-market";
 }
 

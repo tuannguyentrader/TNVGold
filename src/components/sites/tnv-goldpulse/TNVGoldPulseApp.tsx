@@ -1,5 +1,6 @@
 "use client";
 
+import type { PulseSnapshot } from "@/lib/pulse-store";
 import { LanguageProvider } from "@/lib/language-context";
 import { LivePulseProvider } from "@/lib/live-pulse-context";
 import { HeroHeader } from "./HeroHeader";
@@ -16,10 +17,15 @@ import { SubscribeBar } from "./SubscribeBar";
 import { DisclaimerBanner } from "./DisclaimerBanner";
 import { ProUpgradeBar } from "./ProUpgradeBar";
 
-export function TNVGoldPulseApp() {
+interface AppProps {
+  initialPulse?: PulseSnapshot;
+  initialHistory?: PulseSnapshot[];
+}
+
+export function TNVGoldPulseApp({ initialPulse, initialHistory }: AppProps) {
   return (
     <LanguageProvider>
-      <LivePulseProvider>
+      <LivePulseProvider initialPulse={initialPulse} initialHistory={initialHistory}>
         <main className="max-w-[1260px] mx-auto px-3 sm:px-4 py-3 pb-20 text-white font-sans">
           <DisclaimerBanner />
 
