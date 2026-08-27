@@ -1,0 +1,1 @@
+export { DisclaimerBanner } from "./sites/tnv-goldpulse/DisclaimerBanner";

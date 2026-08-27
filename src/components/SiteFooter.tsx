@@ -1,0 +1,1 @@
+export { SiteFooter } from "./sites/tnv-goldpulse/SiteFooter";

@@ -1,0 +1,1 @@
+export { HeroHeader } from "./sites/tnv-goldpulse/HeroHeader";
