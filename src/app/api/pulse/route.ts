@@ -26,7 +26,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const payload = (await request.json()) as Partial<PulseSnapshot>;
+    // Safely parse JSON even if MT5 sends trailing null bytes or whitespace
+    const rawText = await request.text();
+    const cleanText = rawText.replace(/\0/g, "").trim();
+    
+    if (!cleanText) {
+      return NextResponse.json(
+        { success: false, error: "Empty request body" },
+        { status: 400 }
+      );
+    }
+
+    const payload = JSON.parse(cleanText) as Partial<PulseSnapshot>;
 
     if (!payload || typeof payload.price !== "number") {
       return NextResponse.json(
