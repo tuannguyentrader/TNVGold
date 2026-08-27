@@ -1,5 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { join } from "path";
+import { kv } from "@vercel/kv";
 
 export interface MultiTfData {
   bias: "LONG" | "SHORT" | "NEUTRAL";
@@ -45,7 +44,10 @@ export interface PulseSnapshot {
   };
 }
 
-// Initial default state matching current calibrated data
+const KV_KEY_PULSE = "tnv:current_pulse";
+const KV_KEY_HISTORY = "tnv:pulse_history";
+
+// Initial default state
 const defaultSnapshot: PulseSnapshot = {
   symbol: "XAUUSD",
   time: new Date().toLocaleTimeString("en-GB", { hour12: false }),
@@ -75,90 +77,66 @@ const defaultSnapshot: PulseSnapshot = {
   },
 };
 
-// File path for persistence (works on Vercel /tmp)
-const DATA_DIR = process.env.VERCEL ? "/tmp/tnv" : join(process.cwd(), ".tnv-data");
-const PULSE_FILE = join(DATA_DIR, "pulse.json");
-const HISTORY_FILE = join(DATA_DIR, "history.json");
+// Fallback in-memory cache for when KV is not available (local dev)
+let localCache: PulseSnapshot | null = null;
+let localHistoryCache: PulseSnapshot[] | null = null;
 
-function ensureDir() {
-  if (!existsSync(DATA_DIR)) {
-    try {
-      mkdirSync(DATA_DIR, { recursive: true });
-    } catch {
-      // ignore
-    }
-  }
-}
-
-function readPulseFromDisk(): PulseSnapshot | null {
+export async function getLatestPulse(): Promise<PulseSnapshot> {
   try {
-    ensureDir();
-    if (existsSync(PULSE_FILE)) {
-      const raw = readFileSync(PULSE_FILE, "utf-8");
-      return JSON.parse(raw) as PulseSnapshot;
+    if (!process.env.KV_URL) return localCache || defaultSnapshot;
+    const data = await kv.get<PulseSnapshot>(KV_KEY_PULSE);
+    if (data) {
+      localCache = data;
+      return data;
     }
   } catch {
     // fallback
   }
-  return null;
+  return localCache || defaultSnapshot;
 }
 
-function readHistoryFromDisk(): PulseSnapshot[] | null {
+export async function getPulseHistory(): Promise<PulseSnapshot[]> {
   try {
-    ensureDir();
-    if (existsSync(HISTORY_FILE)) {
-      const raw = readFileSync(HISTORY_FILE, "utf-8");
-      return JSON.parse(raw) as PulseSnapshot[];
+    if (!process.env.KV_URL) return localHistoryCache || [];
+    const data = await kv.get<PulseSnapshot[]>(KV_KEY_HISTORY);
+    if (data && Array.isArray(data)) {
+      localHistoryCache = data;
+      return data.slice(0, 10);
     }
   } catch {
     // fallback
   }
-  return null;
+  return localHistoryCache?.slice(0, 10) || [];
 }
 
-function writePulseToDisk(snapshot: PulseSnapshot) {
-  try {
-    ensureDir();
-    writeFileSync(PULSE_FILE, JSON.stringify(snapshot));
-  } catch {
-    // ignore
-  }
-}
-
-function writeHistoryToDisk(history: PulseSnapshot[]) {
-  try {
-    ensureDir();
-    writeFileSync(HISTORY_FILE, JSON.stringify(history));
-  } catch {
-    // ignore
-  }
-}
-
-// In-memory cache with disk fallback
-let currentSnapshot: PulseSnapshot = readPulseFromDisk() || defaultSnapshot;
-let historySnapshots: PulseSnapshot[] = readHistoryFromDisk() || [currentSnapshot];
-
-export function getLatestPulse(): PulseSnapshot {
-  return currentSnapshot;
-}
-
-export function getPulseHistory(): PulseSnapshot[] {
-  return historySnapshots.slice(0, 10);
-}
-
-export function updatePulse(newSnapshot: PulseSnapshot): void {
-  currentSnapshot = {
+export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
+  const snapshot: PulseSnapshot = {
     ...newSnapshot,
     time: newSnapshot.time || new Date().toLocaleTimeString("en-GB", { hour12: false }),
   };
 
-  // Write to disk for cross-instance persistence on Vercel
-  writePulseToDisk(currentSnapshot);
+  localCache = snapshot;
 
-  // Add to history (limit 15 records)
-  historySnapshots.unshift(currentSnapshot);
-  if (historySnapshots.length > 15) {
-    historySnapshots = historySnapshots.slice(0, 15);
+  try {
+    if (process.env.KV_URL) {
+      // Save current pulse
+      await kv.set(KV_KEY_PULSE, snapshot);
+
+      // Update history
+      const history = (await kv.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];
+      history.unshift(snapshot);
+      const trimmed = history.slice(0, 15);
+      localHistoryCache = trimmed;
+      await kv.set(KV_KEY_HISTORY, trimmed);
+    } else {
+      // Local fallback
+      if (!localHistoryCache) localHistoryCache = [];
+      localHistoryCache.unshift(snapshot);
+      if (localHistoryCache.length > 15) {
+        localHistoryCache = localHistoryCache.slice(0, 15);
+      }
+    }
+  } catch {
+    // ignore
   }
-  writeHistoryToDisk(historySnapshots);
 }

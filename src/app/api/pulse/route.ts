@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { getLatestPulse, getPulseHistory, updatePulse, type PulseSnapshot } from "@/lib/pulse-store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-  const latest = getLatestPulse();
-  const history = getPulseHistory();
+  const latest = await getLatestPulse();
+  const history = await getPulseHistory();
 
   return NextResponse.json({
     success: true,
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
     // Safely parse JSON even if MT5 sends trailing null bytes or whitespace
     const rawText = await request.text();
     const cleanText = rawText.replace(/\0/g, "").trim();
-    
+
     if (!cleanText) {
       return NextResponse.json(
         { success: false, error: "Empty request body" },
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     // Merge with current state
-    const current = getLatestPulse();
+    const current = await getLatestPulse();
     const mergedSnapshot: PulseSnapshot = {
       symbol: payload.symbol || current.symbol,
       time: payload.time || new Date().toLocaleTimeString("en-GB", { hour12: false }),
@@ -78,7 +80,7 @@ export async function POST(request: Request) {
       analysisText: payload.analysisText || current.analysisText,
     };
 
-    updatePulse(mergedSnapshot);
+    await updatePulse(mergedSnapshot);
 
     return NextResponse.json({
       success: true,
