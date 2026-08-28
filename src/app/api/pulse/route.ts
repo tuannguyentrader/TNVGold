@@ -130,6 +130,7 @@ export async function POST(request: Request) {
           Number((payload.price - mergedEntryHigh).toFixed(2)),
       },
       exit: payload.exit ?? current.exit,
+      exitSignal: payload.exitSignal ?? current.exitSignal ?? false,
       htf: payload.htf ?? current.htf,
       multiTf: {
         m15: mergeMultiTf(payload.multiTf?.m15, current.multiTf.m15),

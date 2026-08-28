@@ -44,6 +44,7 @@ export interface PulseSnapshot {
     gain: number;
   };
   exit: number;
+  exitSignal?: boolean;
   htf: string;
   multiTf: {
     m15: MultiTfData;
@@ -74,6 +75,7 @@ const defaultSnapshot: PulseSnapshot = {
     gain: 0,
   },
   exit: 0,
+  exitSignal: false,
   htf: "—",
   multiTf: {
     m15: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—", volatility: 0 },
