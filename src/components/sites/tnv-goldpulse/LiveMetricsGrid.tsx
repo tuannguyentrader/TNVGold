@@ -110,9 +110,9 @@ export function LiveMetricsGrid() {
       >
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center justify-between text-[0.7rem]">
-            <span className="text-gray-400 font-sans">Price:</span>
+            <span className="text-gray-400 font-sans">Entry:</span>
             <span className="text-white font-mono font-bold text-base">
-              ${pulse.price.toFixed(2)}
+              {isNeutral ? "—" : `$${(isLong ? pulse.entry.high : pulse.entry.low).toFixed(2)}`}
             </span>
           </div>
           <div className="flex items-center justify-between text-[0.7rem]">
