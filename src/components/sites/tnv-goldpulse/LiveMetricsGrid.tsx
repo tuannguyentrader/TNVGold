@@ -132,21 +132,16 @@ export function LiveMetricsGrid() {
       <MetricCard
         label="EXIT"
         tooltip={t.exitTooltip}
-        footer={
-          <div className="text-[0.68rem] text-gray-400">
-            {t.trailingLabel}: <strong className="text-[#f5c542] font-mono">${pulse.exit.toFixed(2)}</strong>
-          </div>
-        }
         flipBack={<FlipBackContent label="EXIT" rows={tfPlaceholderRows} />}
       >
         <div className="flex flex-col gap-0.5">
           {(() => {
             const v = pulse.volatility || 0;
             const p = pulse.price || 0;
-            let sl, tp1, tp2;
-            if(isLong)       { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; }
-            else if(isShort) { sl = p + 2*v; tp1 = p - 1*v; tp2 = p - 2*v; }
-            else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; }
+            let sl, tp1, tp2, tp3;
+            if(isLong)       { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
+            else if(isShort) { sl = p + 2*v; tp1 = p - 1*v; tp2 = p - 2*v; tp3 = p - 3*v; }
+            else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; tp3 = p + 3*v; }
             return (
               <>
                 <div className="flex items-center justify-between text-[0.7rem]">
@@ -160,6 +155,10 @@ export function LiveMetricsGrid() {
                 <div className="flex items-center justify-between text-[0.7rem]">
                   <span className="text-gray-400 font-sans">TP2:</span>
                   <span className="text-[#61e294] font-mono font-semibold">${tp2.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[0.7rem]">
+                  <span className="text-gray-400 font-sans">TP3:</span>
+                  <span className="text-[#61e294] font-mono font-semibold">${tp3.toFixed(2)}</span>
                 </div>
               </>
             );
