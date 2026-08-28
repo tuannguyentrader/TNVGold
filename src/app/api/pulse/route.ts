@@ -131,6 +131,7 @@ export async function POST(request: Request) {
       },
       exit: payload.exit ?? current.exit,
       exitSignal: payload.exitSignal ?? current.exitSignal ?? false,
+      signalAge: payload.signalAge ?? current.signalAge ?? 0,
       htf: payload.htf ?? current.htf,
       multiTf: {
         m15: mergeMultiTf(payload.multiTf?.m15, current.multiTf.m15),

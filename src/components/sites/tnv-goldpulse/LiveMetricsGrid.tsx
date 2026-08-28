@@ -8,7 +8,7 @@ import { useLanguage } from "@/lib/language-context";
 import { useLivePulse } from "@/lib/live-pulse-context";
 
 export function LiveMetricsGrid() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { pulse } = useLivePulse();
 
   const isLong = pulse.bias === "LONG";
@@ -34,7 +34,9 @@ export function LiveMetricsGrid() {
         tooltip={t.biasTooltip}
         footer={
           <div className="text-[0.68rem] text-gray-400">
-            {t.biasFooter}
+            {language === "vi"
+              ? `Cách ${pulse.signalAge ?? 0} phút`
+              : `${pulse.signalAge ?? 0} min ago`}
           </div>
         }
         flipBack={
@@ -42,12 +44,16 @@ export function LiveMetricsGrid() {
         }
       >
         <div
-          className={`flex items-center gap-1.5 text-2xl font-bold tracking-tight ${
+          className={`flex items-center gap-1.5 ${
+            isLong || isShort
+              ? "text-2xl font-bold tracking-tight"
+              : "text-base font-normal text-gray-500"
+          } ${
             isLong
               ? "text-[#61e294]"
               : isShort
               ? "text-[#ff8383]"
-              : "text-[#f5c542]"
+              : ""
           }`}
         >
           {isLong ? (
@@ -55,9 +61,9 @@ export function LiveMetricsGrid() {
           ) : isShort ? (
             <TrendingDown className="w-5 h-5" />
           ) : (
-            <Minus className="w-5 h-5" />
+            <Minus className="w-4 h-4" />
           )}
-          <span>{isNeutral ? "NEUTRAL" : pulse.bias}</span>
+          <span>{isLong || isShort ? pulse.bias : "—"}</span>
         </div>
       </MetricCard>
 
@@ -118,7 +124,7 @@ export function LiveMetricsGrid() {
           <div className="flex items-center justify-between text-[0.7rem]">
             <span className="text-gray-400 font-sans">Gain:</span>
             <span
-              className={`font-mono font-semibold ${
+              className={`font-mono font-semibold text-base ${
                 pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
               }`}
             >

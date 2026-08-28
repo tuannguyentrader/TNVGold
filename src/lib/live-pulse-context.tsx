@@ -21,6 +21,7 @@ const defaultSnapshot: PulseSnapshot = {
   entry: { high: 0, low: 0, gain: 0 },
   exit: 0,
   exitSignal: false,
+  signalAge: 0,
   htf: "—",
   multiTf: {
     m15: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—", volatility: 0 },
