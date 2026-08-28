@@ -26,14 +26,6 @@ export function LiveMetricsGrid() {
     { tf: "H1", value: "0" },
   ];
 
-  // Badge EXIT: EXIT NOW (đỏ, khi có tín hiệu thoát) > HOLD (xanh, khi có bias LONG/SHORT) > WAIT (xám, NEUTRAL).
-  const isExitNow = pulse.exitSignal === true;
-  const exitBadge = isExitNow
-    ? { text: "EXIT NOW", cls: "bg-[rgba(255,131,131,0.16)] text-[#ff8383] border-[rgba(255,131,131,0.4)]" }
-    : isLong || isShort
-    ? { text: "HOLD", cls: "bg-[rgba(97,226,148,0.14)] text-[#61e294] border-[rgba(97,226,148,0.4)]" }
-    : { text: "WAIT", cls: "bg-white/10 text-gray-400 border-white/15" };
-
   return (
     <div className="grid grid-cols-2 grid-rows-[148px_148px_148px] gap-2.5 w-full h-full">
       {/* 1. BIAS */}
@@ -148,12 +140,6 @@ export function LiveMetricsGrid() {
         flipBack={<FlipBackContent label="EXIT" rows={tfPlaceholderRows} />}
       >
         <div className="flex flex-col gap-0.5">
-          {/* Badge EXIT: EXIT NOW (đỏ) / HOLD (xanh) / WAIT (xám) */}
-          <span
-            className={`inline-flex items-center gap-1 self-start px-2 py-0.5 mb-0.5 rounded-md font-bold text-[0.62rem] border ${exitBadge.cls}`}
-          >
-            {exitBadge.text}
-          </span>
           {(() => {
             const v = pulse.volatility || 0;
             const p = pulse.price || 0;
