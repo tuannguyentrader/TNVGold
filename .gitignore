@@ -3,3 +3,6 @@ node_modules
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+
+# MT5 compiled binaries
+*.ex5

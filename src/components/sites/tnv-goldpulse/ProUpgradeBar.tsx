@@ -5,6 +5,20 @@ import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2, X } from "lucide-react
 
 export function ProUpgradeBar() {
   const [showProModal, setShowProModal] = useState(false);
+  const [proToast, setProToast] = useState(false);
+
+  // Auto-dismiss the "coming soon" toast after 3 seconds
+  useEffect(() => {
+    if (proToast) {
+      const t = setTimeout(() => setProToast(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [proToast]);
+
+  const handleGetPro = () => {
+    // No real checkout backend yet — show a clear "coming soon" status instead of a fake alert
+    setProToast(true);
+  };
 
   // Handle ESC key press
   useEffect(() => {
@@ -87,15 +101,17 @@ export function ProUpgradeBar() {
                 <div className="text-[0.68rem] text-gray-400">Monthly Pass</div>
                 <div className="text-base font-bold text-white">$49 <span className="text-[0.68rem] text-gray-400 font-normal">/ month</span></div>
               </div>
-              <button
-                onClick={() => {
-                  alert("Redirecting to secure checkout...");
-                  setShowProModal(false);
-                }}
-                className="px-4 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#cfa744] to-[#f5c542] text-[#05060a] hover:opacity-90 transition-opacity shadow-lg cursor-pointer"
-              >
-                Get TNV PRO Now
-              </button>
+              <div className="flex flex-col items-end gap-1.5">
+                <button
+                  onClick={handleGetPro}
+                  className="px-4 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#cfa744] to-[#f5c542] text-[#05060a] hover:opacity-90 transition-opacity shadow-lg cursor-pointer"
+                >
+                  Get TNV PRO Now
+                </button>
+                <span className="text-[0.62rem] font-semibold uppercase tracking-wider text-[#f5c542]/80">
+                  Coming soon
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center justify-center gap-1.5 text-[0.68rem] text-gray-500">
@@ -103,6 +119,13 @@ export function ProUpgradeBar() {
               <span>30-Day Money Back Guarantee &bull; Cancel Anytime</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* In-app "coming soon" toast (replaces native alert) */}
+      {proToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl border border-[rgba(245,197,66,0.4)] bg-[#111622] text-[0.78rem] text-gray-200 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <span className="font-semibold text-[#f5c542]">TNV PRO</span> — Checkout is coming soon. Our team is finalizing secure billing.
         </div>
       )}
     </>

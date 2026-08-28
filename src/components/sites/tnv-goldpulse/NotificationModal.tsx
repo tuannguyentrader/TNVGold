@@ -13,6 +13,7 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
   const [sessionTime, setSessionTime] = useState("london");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushPermissionMsg, setPushPermissionMsg] = useState<string | null>(null);
 
   // Accordion states
   const [smartAlertsOpen, setSmartAlertsOpen] = useState(false);
@@ -57,14 +58,17 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
           setPushEnabled(true);
+          setPushPermissionMsg(null);
         } else {
-          alert("Notification permission denied in your browser settings.");
+          setPushPermissionMsg("Notification permission was not granted in your browser settings. Enable it in your browser to receive push alerts.");
         }
       } catch {
         setPushEnabled(true);
+        setPushPermissionMsg(null);
       }
     } else {
       setPushEnabled(true);
+      setPushPermissionMsg(null);
     }
   };
 
@@ -100,7 +104,12 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
         <div className="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
           {/* 1. Daily Gold Pulse (Email Newsletter) */}
           <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#121824] p-4">
-            <h3 className="text-sm font-bold text-white m-0">Daily TNV Gold Pulse</h3>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h3 className="text-sm font-bold text-white m-0">Daily TNV Gold Pulse</h3>
+              <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(245,197,66,0.12)] text-[#f5c542] border border-[rgba(245,197,66,0.3)] font-semibold uppercase tracking-wider whitespace-nowrap">
+                Coming soon
+              </span>
+            </div>
             <p className="text-xs text-gray-400 mt-1 mb-3">
               One email each weekday morning with bias, pulse, key pivot levels, and high-impact gold events.
             </p>
@@ -152,7 +161,7 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                 Telegram Real-Time Bot
               </span>
               <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[#0088cc]/20 text-[#0088cc] font-semibold">
-                PRO ACTIVE
+                COMING SOON
               </span>
             </div>
             <p className="text-xs text-gray-300 mb-3">
@@ -233,7 +242,7 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
             </button>
 
             {pushNotificationsOpen && (
-              <div className="p-3.5 pt-0">
+              <div className="p-3.5 pt-0 space-y-2">
                 <button
                   onClick={handleEnablePush}
                   className={`w-full py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all ${
@@ -245,6 +254,16 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                   <Bell className="w-4 h-4" />
                   {pushEnabled ? "Browser Push Notifications Active ✓" : "Enable browser notifications"}
                 </button>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[0.62rem] font-semibold uppercase tracking-wider text-[#f5c542]/80">
+                    Coming soon
+                  </span>
+                  {pushPermissionMsg && (
+                    <span className="text-[0.68rem] text-[#ff8383] leading-snug text-right">
+                      {pushPermissionMsg}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -339,6 +358,9 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                 >
                   {testSent ? "✓ Test Alert Dispatched to Device" : "Send me a test alert"}
                 </button>
+                <span className="text-[0.62rem] font-semibold uppercase tracking-wider text-[#f5c542]/80 text-center w-full block -mt-1">
+                  Coming soon
+                </span>
               </div>
             )}
           </div>

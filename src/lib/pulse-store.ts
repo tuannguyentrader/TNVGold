@@ -121,6 +121,17 @@ export async function getPulseHistory(): Promise<PulseSnapshot[]> {
   return localHistoryCache?.slice(0, 10) || [];
 }
 
+// Helper chống trùng/idempotency: hai snapshot là cùng một lần ghi nếu cùng thời điểm,
+// cùng giá và cùng bias/score. Một nến M5 đóng hoặc một lần POST lặp sẽ không tạo bản ghi mới.
+function isDuplicateSnapshot(a: PulseSnapshot, b: PulseSnapshot): boolean {
+  return (
+    a.time === b.time &&
+    a.price === b.price &&
+    a.bias === b.bias &&
+    a.score === b.score
+  );
+}
+
 export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
   const snapshot: PulseSnapshot = {
     ...newSnapshot,
@@ -134,16 +145,20 @@ export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
       // Save current pulse
       await redis.set(KV_KEY_PULSE, snapshot);
 
-      // Update history
+      // Update history (idempotent: không ghi snapshot trùng với bản mới nhất)
       const history = (await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];
-      history.unshift(snapshot);
+      if (history.length === 0 || !isDuplicateSnapshot(history[0], snapshot)) {
+        history.unshift(snapshot);
+      }
       const trimmed = history.slice(0, 15);
       localHistoryCache = trimmed;
       await redis.set(KV_KEY_HISTORY, trimmed);
     } else {
       // Local fallback
       if (!localHistoryCache) localHistoryCache = [];
-      localHistoryCache.unshift(snapshot);
+      if (localHistoryCache.length === 0 || !isDuplicateSnapshot(localHistoryCache[0], snapshot)) {
+        localHistoryCache.unshift(snapshot);
+      }
       if (localHistoryCache.length > 15) {
         localHistoryCache = localHistoryCache.slice(0, 15);
       }

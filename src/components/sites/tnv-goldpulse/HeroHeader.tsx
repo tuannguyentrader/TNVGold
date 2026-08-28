@@ -196,10 +196,21 @@ export function HeroHeader() {
             <div className="flex items-center gap-2 mb-3">
               <Key className="w-4 h-4 text-[#f5c542]" />
               <h3 className="text-base font-bold text-white m-0">{t.configTitle}</h3>
+              <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(245,197,66,0.12)] text-[#f5c542] border border-[rgba(245,197,66,0.3)] font-semibold uppercase tracking-wider whitespace-nowrap">
+                Coming soon
+              </span>
             </div>
-            <p className="text-xs text-gray-400 mb-4">
+            <p className="text-xs text-gray-400 mb-2">
               {t.configDesc}
             </p>
+            <div className="mb-4 rounded-lg border border-[rgba(245,197,66,0.25)] bg-[rgba(245,197,66,0.06)] px-3 py-2 text-[0.7rem] text-gray-300">
+              <span className="font-semibold text-[#f5c542]">
+                {language === "vi" ? "Xem trước:" : "Preview:"}
+              </span>{" "}
+              {language === "vi"
+                ? "Đồng bộ MT5 trực tiếp sẽ sớm ra mắt. Xác thực token chưa hoạt động."
+                : "live MT5 streaming sync is coming soon. Token validation is not active yet."}
+            </div>
             <form onSubmit={handleSaveKey} className="space-y-4">
               <div>
                 <input

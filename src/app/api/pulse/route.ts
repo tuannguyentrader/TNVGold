@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
-import { getLatestPulse, getPulseHistory, updatePulse, type PulseSnapshot } from "@/lib/pulse-store";
+import {
+  getLatestPulse,
+  getPulseHistory,
+  updatePulse,
+  type PulseSnapshot,
+  type MultiTfData,
+  type TechnicalIndicators,
+} from "@/lib/pulse-store";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +22,50 @@ export async function GET() {
   });
 }
 
+// Merge sâu một cụm MultiTfData: ưu tiên giá trị mới, nhưng giữ giá trị hợp lệ (kể cả 0).
+function mergeMultiTf(
+  payloadItem: Partial<MultiTfData> | undefined,
+  base: MultiTfData
+): MultiTfData {
+  return {
+    bias: payloadItem?.bias ?? base.bias,
+    score: payloadItem?.score ?? base.score,
+    high: payloadItem?.high ?? base.high,
+    low: payloadItem?.low ?? base.low,
+    exit: payloadItem?.exit ?? base.exit,
+    htf: payloadItem?.htf ?? base.htf,
+  };
+}
+
+function mergeIndicators(
+  payloadItem: Partial<TechnicalIndicators> | undefined,
+  base: TechnicalIndicators
+): TechnicalIndicators {
+  return {
+    rsi: payloadItem?.rsi ?? base.rsi,
+    atr: payloadItem?.atr ?? base.atr,
+    emaGap: payloadItem?.emaGap ?? base.emaGap,
+    adx: payloadItem?.adx ?? base.adx,
+    vwap: payloadItem?.vwap ?? base.vwap,
+    spread: payloadItem?.spread ?? base.spread,
+  };
+}
+
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get("authorization");
-    const secretKey = process.env.TNV_SECRET_KEY || "tnv_secret_key_2026";
+    const secretKey = process.env.TNV_SECRET_KEY;
 
-    // Optional bearer token check
-    if (authHeader && authHeader !== `Bearer ${secretKey}`) {
+    // Fail closed: nếu chưa cấu hình secret thì từ chối, không có giá trị mặc định trong source.
+    if (!secretKey) {
+      return NextResponse.json(
+        { success: false, error: "Server authentication not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Bắt buộc xác thực: thiếu hoặc sai Authorization bearer token đều trả 401.
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${secretKey}`) {
       return NextResponse.json(
         { success: false, error: "Unauthorized access token" },
         { status: 401 }
@@ -48,36 +92,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // Merge with current state
+    // Merge với current state dùng nullish coalescing (??) để giữ giá trị 0 hợp lệ,
+    // và merge sâu đối với entry/multiTf/indicators.
     const current = await getLatestPulse();
+    const mergedEntryHigh = payload.entry?.high ?? current.entry.high;
     const mergedSnapshot: PulseSnapshot = {
-      symbol: payload.symbol || current.symbol,
-      time: payload.time || new Date().toLocaleTimeString("en-GB", { hour12: false }),
+      symbol: payload.symbol ?? current.symbol,
+      time: payload.time ?? new Date().toLocaleTimeString("en-GB", { hour12: false }),
       price: payload.price,
-      bias: payload.bias || current.bias,
-      score: typeof payload.score === "number" ? payload.score : current.score,
-      volatility: typeof payload.volatility === "number" ? payload.volatility : current.volatility,
+      bias: payload.bias ?? current.bias,
+      score: payload.score ?? current.score,
+      volatility: payload.volatility ?? current.volatility,
       entry: {
-        high: payload.entry?.high || current.entry.high,
-        low: payload.entry?.low || current.entry.low,
-        gain: payload.entry?.gain !== undefined ? payload.entry.gain : Number((payload.price - (payload.entry?.high || current.entry.high)).toFixed(2)),
+        high: mergedEntryHigh,
+        low: payload.entry?.low ?? current.entry.low,
+        gain:
+          payload.entry?.gain ??
+          Number((payload.price - mergedEntryHigh).toFixed(2)),
       },
-      exit: payload.exit || current.exit,
-      htf: payload.htf || current.htf,
+      exit: payload.exit ?? current.exit,
+      htf: payload.htf ?? current.htf,
       multiTf: {
-        m15: payload.multiTf?.m15 || current.multiTf.m15,
-        m30: payload.multiTf?.m30 || current.multiTf.m30,
-        h1: payload.multiTf?.h1 || current.multiTf.h1,
+        m15: mergeMultiTf(payload.multiTf?.m15, current.multiTf.m15),
+        m30: mergeMultiTf(payload.multiTf?.m30, current.multiTf.m30),
+        h1: mergeMultiTf(payload.multiTf?.h1, current.multiTf.h1),
       },
-      indicators: {
-        rsi: payload.indicators?.rsi || current.indicators.rsi,
-        atr: payload.indicators?.atr || current.indicators.atr,
-        emaGap: payload.indicators?.emaGap || current.indicators.emaGap,
-        adx: payload.indicators?.adx || current.indicators.adx,
-        vwap: payload.indicators?.vwap || current.indicators.vwap,
-        spread: payload.indicators?.spread || current.indicators.spread,
-      },
-      analysisText: payload.analysisText || current.analysisText,
+      indicators: mergeIndicators(payload.indicators, current.indicators),
+      analysisText: payload.analysisText ?? current.analysisText,
     };
 
     await updatePulse(mergedSnapshot);
