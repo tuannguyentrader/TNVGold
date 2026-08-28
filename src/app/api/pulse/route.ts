@@ -52,6 +52,24 @@ function mergeIndicators(
   };
 }
 
+// Đảm bảo nhất quán bias/score: khi bias là NEUTRAL thì không mang ý nghĩa tín hiệu,
+// nên score (top-level và từng khung) được đưa về 0 để tránh hiển thị mâu thuẫn
+// "NEUTRAL + score cao" trên toàn bộ dashboard.
+function normalizeNeutralScore(snapshot: PulseSnapshot): PulseSnapshot {
+  const normalizeMultiTfItem = (item: MultiTfData): MultiTfData =>
+    item.bias === "NEUTRAL" ? { ...item, score: 0 } : item;
+
+  return {
+    ...snapshot,
+    score: snapshot.bias === "NEUTRAL" ? 0 : snapshot.score,
+    multiTf: {
+      m15: normalizeMultiTfItem(snapshot.multiTf.m15),
+      m30: normalizeMultiTfItem(snapshot.multiTf.m30),
+      h1: normalizeMultiTfItem(snapshot.multiTf.h1),
+    },
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const secretKey = process.env.TNV_SECRET_KEY;
@@ -122,12 +140,15 @@ export async function POST(request: Request) {
       analysisText: payload.analysisText ?? current.analysisText,
     };
 
-    await updatePulse(mergedSnapshot);
+    // Chỉ giữ snapshot nhất quán (NEUTRAL → score 0) trước khi lưu/trả về.
+    const normalizedSnapshot = normalizeNeutralScore(mergedSnapshot);
+
+    await updatePulse(normalizedSnapshot);
 
     return NextResponse.json({
       success: true,
       message: "TNV Gold pulse updated successfully",
-      data: mergedSnapshot,
+      data: normalizedSnapshot,
     });
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Internal Server Error";

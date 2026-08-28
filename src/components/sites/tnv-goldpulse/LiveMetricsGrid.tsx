@@ -15,6 +15,10 @@ export function LiveMetricsGrid() {
   const isShort = pulse.bias === "SHORT";
   const isNeutral = pulse.bias === "NEUTRAL";
 
+  // NEUTRAL không mang ý nghĩa tín hiệu: đưa score về 0 khi hiển thị để tránh
+  // mâu thuẫn "NEUTRAL + score cao" (Pulse/ConfidenceBar luôn nhất quán với BIAS).
+  const pulseScore = isNeutral ? 0 : pulse.score;
+
   // Map HTF label: Pass/NEUTRAL -> Neutral, Bullish/Bearish giữ nguyên
   const htfLabel = (v: string) => {
     if (v === "LONG" || v === "Bullish") return "Bullish";
@@ -73,7 +77,7 @@ export function LiveMetricsGrid() {
       <MetricCard
         label="PULSE"
         tooltip={t.scoreTooltip}
-        footer={<ConfidenceBar value={pulse.score * 10} />}
+        footer={<ConfidenceBar value={pulseScore * 10} />}
         flipBack={
           <FlipBackContent
             label="PULSE"
@@ -88,14 +92,14 @@ export function LiveMetricsGrid() {
         <div className="flex items-center justify-center h-full">
           <span
             className={`text-4xl font-bold font-mono ${
-              pulse.score >= 8
+              pulseScore >= 8
                 ? "text-[#61e294]"
-                : pulse.score >= 5
+                : pulseScore >= 5
                 ? "text-[#f5c542]"
                 : "text-gray-400"
             }`}
           >
-            {pulse.score * 10}
+            {pulseScore * 10}
           </span>
         </div>
       </MetricCard>
