@@ -171,18 +171,23 @@ export function LiveMetricsGrid() {
           </div>
         }
       >
-        <div className="flex items-center">
-          {isNeutral ? (
-            <span className="text-lg font-semibold text-gray-400">Neutral</span>
-          ) : (
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center justify-between text-[0.7rem]">
+            <span className="text-gray-400 font-sans">Price:</span>
+            <span className="text-white font-mono font-bold text-base">
+              ${pulse.price.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-[0.7rem]">
+            <span className="text-gray-400 font-sans">Gain:</span>
             <span
-              className={`text-2xl font-bold font-mono tracking-tight ${
+              className={`font-mono font-semibold ${
                 pulse.entry.gain >= 0 ? "text-[#61e294]" : "text-[#ff8383]"
               }`}
             >
               {pulse.entry.gain >= 0 ? `+${pulse.entry.gain.toFixed(2)}` : pulse.entry.gain.toFixed(2)}
             </span>
-          )}
+          </div>
         </div>
       </MetricCard>
 
@@ -206,8 +211,31 @@ export function LiveMetricsGrid() {
           />
         }
       >
-        <div className="text-2xl font-bold text-white font-mono tracking-tight">
-          ${pulse.exit.toFixed(2)}
+        <div className="flex flex-col gap-0.5">
+          {(() => {
+            const v = pulse.volatility || 0;
+            const p = pulse.price || 0;
+            let sl, tp1, tp2;
+            if(isLong)       { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; }
+            else if(isShort) { sl = p + 2*v; tp1 = p - 1*v; tp2 = p - 2*v; }
+            else             { sl = p - 2*v; tp1 = p + 1*v; tp2 = p + 2*v; }
+            return (
+              <>
+                <div className="flex items-center justify-between text-[0.7rem]">
+                  <span className="text-gray-400 font-sans">SL:</span>
+                  <span className="text-[#ff8383] font-mono font-semibold">${sl.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[0.7rem]">
+                  <span className="text-gray-400 font-sans">TP1:</span>
+                  <span className="text-[#61e294] font-mono font-semibold">${tp1.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[0.7rem]">
+                  <span className="text-gray-400 font-sans">TP2:</span>
+                  <span className="text-[#61e294] font-mono font-semibold">${tp2.toFixed(2)}</span>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </MetricCard>
 
