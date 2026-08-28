@@ -22,9 +22,9 @@ const defaultSnapshot: PulseSnapshot = {
   exit: 0,
   htf: "—",
   multiTf: {
-    m15: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—" },
-    m30: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—" },
-    h1:  { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—" },
+    m15: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—", volatility: 0 },
+    m30: { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—", volatility: 0 },
+    h1:  { bias: "NEUTRAL", score: 0, high: 0, low: 0, exit: 0, htf: "—", volatility: 0 },
   },
   indicators: { rsi: 0, atr: 0, emaGap: 0, adx: 0, vwap: 0, spread: 0 },
 };

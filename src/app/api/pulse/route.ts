@@ -34,6 +34,7 @@ function mergeMultiTf(
     low: payloadItem?.low ?? base.low,
     exit: payloadItem?.exit ?? base.exit,
     htf: payloadItem?.htf ?? base.htf,
+    volatility: payloadItem?.volatility ?? base.volatility,
   };
 }
 

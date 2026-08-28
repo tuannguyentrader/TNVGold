@@ -114,9 +114,9 @@ export function LiveMetricsGrid() {
           <FlipBackContent
             label={t.volatilityLabel}
             rows={[
-              { tf: "M15", value: `$${(pulse.volatility * 1.8).toFixed(2)} USD` },
-              { tf: "M30", value: `$${(pulse.volatility * 2.5).toFixed(2)} USD` },
-              { tf: "H1", value: `$${(pulse.volatility * 3.4).toFixed(2)} USD` },
+              { tf: "M15", value: `$${(pulse.multiTf.m15.volatility || 0).toFixed(2)} USD` },
+              { tf: "M30", value: `$${(pulse.multiTf.m30.volatility || 0).toFixed(2)} USD` },
+              { tf: "H1", value: `$${(pulse.multiTf.h1.volatility || 0).toFixed(2)} USD` },
             ]}
           />
         }
