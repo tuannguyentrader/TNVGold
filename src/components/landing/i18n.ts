@@ -8,7 +8,7 @@ export const i18n = {
   vi: {
     badge: "Phân tích Vàng Real-Time",
     heroTitle1: "TNV",
-    heroTitle2: "Gold Pulse",
+    heroTitle2: "Gold",
     heroDesc:
       "Phân tích vàng XAUUSD real-time bằng AI. Bias, score, multi-timeframe, session flow Tokyo/London/NY. Tự động đăng bài phân tích hàng giờ.",
     ctaDashboard: "Xem Dashboard",
@@ -32,7 +32,7 @@ export const i18n = {
     },
     pricingPro: {
       name: "Pro", price: "499.000₫", period: "/tháng", badge: "Phổ biến",
-      features: ["Tín hiệu tự động không giới hạn", "Phân tích AI không giới hạn", "500 chart tùy chỉnh/tháng", "Phân tích ảnh chart (vision AI)", "Tin tức real-time 24/7", "Hỗ trợ ưu tiên qua Telegram"],
+      features: ["Tín hiệu tự động không giới hạn", "Phân tích AI không giới hạn", "500 chart tùy chỉnh/tháng", "Phân tích ảnh chart", "Tin tức real-time 24/7", "Hỗ trợ ưu tiên qua Telegram"],
       cta: "Liên hệ mua Pro",
     },
     faqTitle: "Câu hỏi thường gặp",
@@ -60,7 +60,7 @@ export const i18n = {
   en: {
     badge: "Real-Time Gold Analytics",
     heroTitle1: "TNV",
-    heroTitle2: "Gold Pulse",
+    heroTitle2: "Gold",
     heroDesc: "Real-time AI-powered XAUUSD gold analytics. Bias, score, multi-timeframe, Tokyo/London/NY session flow. Auto-published analysis every hour.",
     ctaDashboard: "View Dashboard",
     ctaContact: "Contact Admin",
