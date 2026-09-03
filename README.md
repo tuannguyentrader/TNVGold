@@ -1,25 +1,30 @@
-# 🏆 TNV Gold — Quantitative Market Pulse & Signal Analytics
+# 🏆 TNV Gold — Marketing Web + Auto-Publish
 
-Institutional-grade real-time gold (XAUUSD) analytics dashboard and algorithmic market flow tracker.
+Trang web marketing/landing + blog tự động cho TNV Gold. Tự động đăng bài phân tích XAUUSD hàng giờ, tổng hợp tin tức kinh tế USD, SEO đầy đủ (sitemap, RSS, JSON-LD, OG).
+
+> **Dự án liên quan:** [TNVGold Telegram Bot](../TNVGold%20Telegram/) — bot Python gửi tín hiệu tự động, quản lý user Free/Pro.
 
 ---
 
-## ⚡ Key Features
+## ⚡ Tính năng
 
-- **Live Market Pulse & Indicator System**: Real-time evaluation of quantitative breakout momentum (BIAS, Quality Score, Volatility, Entry, Exit, HTF Filters).
-- **Session Flow™**: Interactive vector tracking of Asian, European, and US market liquidity and session transitions.
-- **TradingView Live Integration**: Real-time institutional candlestick feeds directly embedded with zero latency.
-- **MT5 Direct WebBridge**: Seamless webhook ingestion pipeline streaming live metrics from MetaTrader 5 into the web dashboard.
-- **Bilingual Interface**: Full support for English and Vietnamese with automatic persistence.
+- **Landing page** đầy đủ 7 sections (Hero, Features, Pricing, FAQ, CTA, Footer) với i18n VI/EN
+- **Blog tự động** — Cron mỗi giờ tạo bài phân tích XAUUSD từ pulse snapshot
+- **Tin tức kinh tế** — Cron 30 phút fetch từ ForexFactory, tự lọc USD High Impact
+- **SEO đầy đủ**: sitemap.xml động, robots.txt, Open Graph image, JSON-LD Article, RSS feed
+- **Dashboard `/goldpulse`** — real-time pulse từ Upstash Redis (do MT5 EA gửi)
 
 ---
 
 ## 🚀 Tech Stack
 
 - **Framework**: Next.js 16 (App Router, React 19, TypeScript)
-- **Styling**: Tailwind CSS v4 + Custom Dark Theme
-- **Icons**: Lucide React
+- **Styling**: Tailwind CSS v4 + Custom Dark Theme (gold #f5c542, dark #05060a)
+- **Data**: Upstash Redis (serverless REST)
+- **AI rendering**: react-markdown 10.x
+- **OG Image**: Edge runtime `next/og`
 - **Deployment**: Vercel Cloud Serverless
+- **Cron**: Vercel Cron (Hobby) hoặc cron-job.org (free, recommended)
 
 ---
 
@@ -27,25 +32,151 @@ Institutional-grade real-time gold (XAUUSD) analytics dashboard and algorithmic 
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start local dev server
-npm run dev
+pnpm run dev
 
-# Run full code validation (lint + typecheck + build)
-npm run check
+# Type check only
+pnpm run typecheck
+
+# Full validation (lint + typecheck + build)
+pnpm run check
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to view the application.
+Mở [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 📡 MT5 Bridge Integration
+## 🌐 Routes
 
-To connect your MetaTrader 5 terminal:
-1. Open MT5 $\rightarrow$ `Tools` $\rightarrow$ `Options` $\rightarrow$ `Expert Advisors`.
-2. Check `Allow WebRequest for listed URL` and add your Vercel deployment URL.
-3. Attach `docs/TNV_WebBridge.mq5` to your XAUUSD M5 chart and configure your Web URL and Secret Token.
+| Route | Mô tả |
+|---|---|
+| `/` | Landing page (Hero, Features, Pricing, FAQ, Footer) |
+| `/goldpulse` | Dashboard real-time pulse |
+| `/blog` | Danh sách bài viết phân tích |
+| `/blog/[slug]` | Chi tiết bài viết (markdown render) |
+| `/tin-tuc` | Tin tức kinh tế USD |
+| `/tin-tuc/[id]` | Chi tiết tin tức |
+| `/sitemap.xml` | Sitemap (động) |
+| `/rss.xml` | RSS feed (blog + news) |
+| `/robots.txt` | Robots |
+
+---
+
+## 📡 API Endpoints
+
+| Endpoint | Method | Mục đích | Auth |
+|---|---|---|---|
+| `/api/health` | GET | Health check | — |
+| `/api/pulse` | GET | Lấy pulse hiện tại | — |
+| `/api/pulse` | POST | Ghi pulse (từ EA) | Bearer |
+| `/api/pulse/clear` | POST | Xoá pulse | Bearer |
+| `/api/news` | GET | ForexFactory proxy (rss2json) | — |
+| `/api/news/store` | GET | News từ Redis store | — |
+| `/api/posts` | GET | List blog posts | — |
+| `/api/posts` | POST | Tạo post (admin/cron) | Bearer |
+| `/api/posts/[slug]` | GET | Detail post | — |
+| `/api/og` | GET | OG image 1200x630 | — |
+| `/api/cron/blog-generate` | GET | Auto blog (mỗi giờ) | Cron / Bearer |
+| `/api/cron/news-fetch` | GET | Auto news (mỗi 30 min) | Cron / Bearer |
+
+---
+
+## 🔐 Environment Variables (Vercel)
+
+```bash
+# Redis (Upstash)
+KV_REST_API_URL=https://xxx.upstash.io
+KV_REST_API_TOKEN=xxx
+
+# Auth (dùng cho POST + cron)
+TNV_SECRET_KEY=your-random-secret-key
+
+# Site URL (cho canonical, OG, sitemap)
+NEXT_PUBLIC_SITE_URL=https://tnvgold.vercel.app
+```
+
+---
+
+## 🚀 Triển khai lên Vercel
+
+### 1. Kết nối repo
+- Vào https://vercel.com/new
+- Import `tuannguyentrader/TNVGold`
+- Framework: Next.js (tự nhận)
+- Build: `pnpm run build`
+
+### 2. Cấu hình env vars
+Trong Vercel Dashboard → Project → Settings → Environment Variables, thêm:
+- `KV_REST_API_URL`
+- `KV_REST_API_TOKEN`
+- `TNV_SECRET_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+
+### 3. Cron Jobs
+**Vercel Hobby plan** giới hạn cron (max 2 jobs, mỗi job tối thiểu 1 lần/ngày).
+
+Khuyến nghị: dùng **cron-job.org** (miễn phí) cho cron chi tiết:
+- Blog: `https://tnvgold.vercel.app/api/cron/blog-generate` — mỗi giờ
+- News: `https://tnvgold.vercel.app/api/cron/news-fetch` — mỗi 30 phút
+
+Chi tiết xem [docs/operations/CRON_SETUP.md](docs/operations/CRON_SETUP.md).
+
+### 4. Uptime monitor
+- Đăng ký https://uptimerobot.com
+- Monitor `https://tnvgold.vercel.app/api/health`, interval 5 phút
+
+### 5. SEO submit
+- Vào https://search.google.com/search-console
+- Verify domain, submit `sitemap.xml`
+
+---
+
+## 📂 Cấu trúc dự án
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── health/route.ts
+│   │   ├── news/{route.ts, store/route.ts}
+│   │   ├── pulse/{route.ts, clear/route.ts}
+│   │   ├── posts/{route.ts, [slug]/route.ts}
+│   │   ├── cron/{blog-generate, news-fetch}/route.ts
+│   │   └── og/route.tsx
+│   ├── blog/{page.tsx, [slug]/page.tsx, *-client.tsx}
+│   ├── tin-tuc/{page.tsx, [id]/page.tsx, *-client.tsx}
+│   ├── rss.xml/route.ts
+│   ├── sitemap.ts
+│   ├── robots.ts
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── landing/         # 9 file component
+│   └── sites/...        # Dashboard
+├── lib/
+│   ├── blog-store.ts
+│   ├── blog-helpers.ts
+│   ├── news-store.ts
+│   ├── pulse-store.ts
+│   ├── language-context.tsx
+│   ├── live-pulse-context.tsx
+│   └── ...
+└── types/market.ts
+```
+
+---
+
+## 📡 MT5 Integration
+
+Để dashboard `/goldpulse` có data real-time:
+1. Mở MT5 → Tools → Options → Expert Advisors
+2. Check "Allow WebRequest for listed URL", thêm Vercel URL
+3. Attach `docs/TNV_WebBridge_EA.mq5` vào chart XAUUSD M5
+4. Config Web URL + Secret Token (env `TNV_SECRET_KEY`)
+
+Chi tiết: xem `docs/TNV_WebBridge_EA.mq5` + `docs/analysis/MT5_DATAFLOW_AND_EA_ANALYSIS.md`
 
 ---
 
