@@ -138,6 +138,14 @@ function isDuplicateSnapshot(a: PulseSnapshot, b: PulseSnapshot): boolean {
 }
 
 export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
+  // Validate: reject invalid snapshots
+  if (typeof newSnapshot.price !== "number" || newSnapshot.price <= 0) {
+    return; // ignore invalid price
+  }
+  if (!newSnapshot.symbol) {
+    return; // require symbol
+  }
+
   const snapshot: PulseSnapshot = {
     ...newSnapshot,
     time: newSnapshot.time || new Date().toLocaleTimeString("en-GB", { hour12: false }),
@@ -147,8 +155,8 @@ export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
 
   try {
     if (redis) {
-      // Save current pulse
-      await redis.set(KV_KEY_PULSE, snapshot);
+      // Save current pulse (TTL 60s — tránh stale data nếu EA ngừng gửi)
+      await redis.set(KV_KEY_PULSE, snapshot, { ex: 60 });
 
       // Update history (idempotent: không ghi snapshot trùng với bản mới nhất)
       const history = (await redis.get<PulseSnapshot[]>(KV_KEY_HISTORY)) || [];
@@ -157,7 +165,8 @@ export async function updatePulse(newSnapshot: PulseSnapshot): Promise<void> {
       }
       const trimmed = history.slice(0, 15);
       localHistoryCache = trimmed;
-      await redis.set(KV_KEY_HISTORY, trimmed);
+      // History giữ 7 ngày
+      await redis.set(KV_KEY_HISTORY, trimmed, { ex: 7 * 24 * 60 * 60 });
     } else {
       // Local fallback
       if (!localHistoryCache) localHistoryCache = [];
